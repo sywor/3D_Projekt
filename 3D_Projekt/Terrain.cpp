@@ -59,10 +59,11 @@ float Terrain::getHeight(float _x, float _z)const
 	int row = (int)floorf(d);
 	int col	= (int)floorf(c);
 
-	float A = heightmap[row * info.NumCols + col];
-	float B = heightmap[row * info.NumCols + col + 1];
-	float C = heightmap[(row + 1) * info.NumCols + col];
-	float D = heightmap[(row + 1) * info.NumCols + col + 1];
+	float A = heightmap[row + info.NumCols + col];
+	float tmp = hightData[col][row + info.NumCols];
+	float B = heightmap[row + info.NumCols + col + 1];
+	float C = heightmap[(row + 1) + info.NumCols + col];
+	float D = heightmap[(row + 1) + info.NumCols + col + 1];
 
 	float s = c - (float)col;
 	float t = d - (float)row;
@@ -101,7 +102,6 @@ void Terrain::init(ID3D10Device* _device, const InitInfo& _initInfo)
 	numFaces = (info.NumRows - 1) * (info.NumCols - 1) * 2;
 
 	loadHeightmap();
-	//smooth();
 	buildHightDataMatrix();
 	buildVB();
 	buildIB();
@@ -176,54 +176,6 @@ void Terrain::loadHeightmap()
 		heightmap[i] = (float)in[i] * info.HeightScale + info.HeightOffset;
 	}
 }
-
-//void Terrain::smooth()
-//{
-//	std::vector<float> dest(heightmap.size());
-//
-//	for (UINT i = 0; i < info.NumRows; i++)
-//	{
-//		for (UINT j = 0; j < info.NumCols; j++)
-//		{
-//			dest[i * info.NumCols + j] = average(i, j);
-//		}
-//	}
-//
-//	heightmap = dest;
-//}
-//
-//float Terrain::average(UINT i, UINT j)
-//{
-//	float avg = 0.0f;
-//	float num = 0.0f;
-//
-//	for (UINT m = i - 1; m <= i + 1; m++)
-//	{
-//		for (UINT n = j - 1; n <= j + 1; n++)
-//		{
-//			if (inBounds(m, n))
-//			{
-//				avg += heightmap[m * info.NumCols + n];
-//				num += 1.0f;
-//			}
-//		}
-//	}
-//
-//	return avg / num;
-//}
-//
-//bool Terrain::inBounds(UINT i, UINT j)
-//{
-//	if (i >= 0 && i < info.NumRows && j >= 0 && j < info.NumCols)
-//	{
-//		return true;
-//	} 
-//	else
-//	{
-//		return false;
-//	}
-//}
-
 
 void Terrain::buildVB()
 {
@@ -321,11 +273,14 @@ void Terrain::buildIB()
 
 void Terrain::buildHightDataMatrix()
 {
-	for (int i = 0; i < 513; i++)
+	float w = width();
+	float d = depth();
+
+	for (int i = 1; i <= w; i++)
 	{
 		row r;
 
-		for (int j = 0; j < 513; j++)
+		for (int j = 0; j < d; j++)
 		{
 			r.push_back(heightmap[i * j]);
 		}
