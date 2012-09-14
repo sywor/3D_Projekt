@@ -18,10 +18,9 @@ private:
 	POINT oldMousePos;
 
 	ParticleSystem partSys;
-	Terrain terr;
 	Sky sky;
 	Light parrallelLight;
 
-	D3DXMATRIX landWorld;
+	D3DXMATRIX Map;
 	ID3D10ShaderResourceView* enviromentMapRV;
 };

@@ -28,7 +28,7 @@ int WINAPI WinMain( __in HINSTANCE _hInstance, __in_opt HINSTANCE _hPrevInstance
 D3DProj::D3DProj(HINSTANCE _hInst) : D3DApp(_hInst)
 {
 	enviromentMapRV = 0;
-	D3DXMatrixIdentity(&landWorld);
+	D3DXMatrixIdentity(&Map);
 }
 
 D3DProj::~D3DProj()
@@ -51,7 +51,7 @@ void D3DProj::initApp()
 	GetTextureManager().init(device);
 
 	clearColor = WHITE;
-	GetCamera().Position() = D3DXVECTOR3(0.0f, -300.0f, 450.0f);
+	GetCamera().Position() = D3DXVECTOR3(0.0f, -10.0f, 0.0f);
 
 	enviromentMapRV = GetTextureManager().createCubeTex(L"cubeMap.dds");
 	sky.init(device, enviromentMapRV, 5000.0f);
@@ -71,7 +71,7 @@ void D3DProj::initApp()
 	tii.NumCols      = 513;
 	tii.CellSpacing  = 1.0f;
 
-	terr.init(device, tii);
+	GetTerrain().init(device, tii);
 
 	vector<wstring> flares;
 	flares.push_back(L"flare0.dds");
@@ -84,7 +84,7 @@ void D3DProj::initApp()
 	parrallelLight.diffuse  = D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f);
 	parrallelLight.specular = D3DXCOLOR(0.5f, 0.4843f, 0.3f, 1.0f);
 
-	terr.setDirectionToSun(-parrallelLight.dir);
+	GetTerrain().setDirectionToSun(-parrallelLight.dir);
 }
 
 void D3DProj::onResize()
@@ -155,7 +155,7 @@ void D3DProj::drawScene()
 
 	device->OMSetBlendState(0, blendFactor, 0xffffffff);
 	device->IASetPrimitiveTopology(D3D10_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-	terr.draw(landWorld);
+	GetTerrain().draw(Map);
 	sky.draw();
 
 	partSys.setEyePos(GetCamera().Position());

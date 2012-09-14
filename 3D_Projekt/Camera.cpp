@@ -1,4 +1,5 @@
 #include "Camera.h"
+#include "Terrain.h"
 
 Camera& GetCamera()
 {
@@ -16,6 +17,7 @@ Camera::Camera()
 
 	D3DXMatrixIdentity(&viewMatrix);
 	D3DXMatrixIdentity(&projmatrix);
+	
 }
 
 Camera::~Camera(){}
@@ -25,15 +27,9 @@ D3DXVECTOR3& Camera::Position()
 	return pos;
 }
 
-D3DXMATRIX& Camera::getAngle()
+D3DXVECTOR3& Camera::Look()
 {
-
-	return r;
-}
-
-D3DXMATRIX& Camera::GetPitch()
-{
-	return p;
+	return look;
 }
 
 D3DXMATRIX Camera::ViewMatrix()const
@@ -54,15 +50,18 @@ void Camera::SetLens(float _fovY, float _aspect, float _zn, float _zf)
 void Camera::Strafe(float _d)
 {
 	pos += _d * right;
+	pos.y = GetTerrain().getHeight(pos.x, pos.z);
 }
 
 void Camera::Walk(float _d)
 {
 	pos += _d * look;
+	pos.y = GetTerrain().getHeight(pos.x, pos.z);
 }
 
 void Camera::Pitch(float _angle)
 {
+	D3DXMATRIX p;
 	D3DXMatrixRotationAxis(&p, &right, _angle);
 
 	D3DXVec3TransformNormal(&up, &up, &p);
@@ -71,6 +70,7 @@ void Camera::Pitch(float _angle)
 
 void Camera::RotateY(float _angle)
 {
+	D3DXMATRIX r;
 	D3DXMatrixRotationY(&r, _angle);
 
 	D3DXVec3TransformNormal(&right, &right, &r);

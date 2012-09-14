@@ -3,7 +3,7 @@
 #include "Camera.h"
 #include "Effects.h"
 #include "InputLayouts.h"
-#include "FreeImage.h"
+#include <math.h>
 #include <fstream>
 #include <sstream>
 
@@ -15,6 +15,12 @@ namespace
 		D3DXVECTOR3 normal;
 		D3DXVECTOR2 texCoord;
 	};
+}
+
+Terrain& GetTerrain()
+{
+	static Terrain terrain;
+	return terrain;
 }
 
 Terrain::Terrain()
@@ -95,7 +101,8 @@ void Terrain::init(ID3D10Device* _device, const InitInfo& _initInfo)
 	numFaces = (info.NumRows - 1) * (info.NumCols - 1) * 2;
 
 	loadHeightmap();
-	smooth();
+	//smooth();
+	buildHightDataMatrix();
 	buildVB();
 	buildIB();
 
@@ -170,208 +177,53 @@ void Terrain::loadHeightmap()
 	}
 }
 
-//void Terrain::loadHeightmap()
+//void Terrain::smooth()
 //{
-//	const char* str = info.HeightmapFilename.c_str();
-//	FIBITMAP *heightMapImg = FreeImage_Load(FIF_RAW, str, RAW_DEFAULT);
+//	std::vector<float> dest(heightmap.size());
 //
-//	int hmHeight = 0;
-//	int hmWidth = 0;
-//	float* heightData = 0;
-//
-//	if ( heightMapImg )
+//	for (UINT i = 0; i < info.NumRows; i++)
 //	{
-//		//Hämtar höjd och bred
-//		hmHeight = FreeImage_GetHeight(heightMapImg);
-//		hmWidth = FreeImage_GetWidth(heightMapImg);
-//
-//		heightData = new float[hmHeight * hmWidth];
-//
-//		RGBQUAD color;	
-//		for (int y=0; y < hmHeight; y++)
+//		for (UINT j = 0; j < info.NumCols; j++)
 //		{
-//			for(int x=0; x < hmWidth; x++)
-//			{
-//				FreeImage_GetPixelColor(heightMapImg,x,y,&color);
+//			dest[i * info.NumCols + j] = average(i, j);
+//		}
+//	}
 //
-//				float divisor = 255 / 6;
-//				heightData[y*hmWidth + x] = color.rgbRed / divisor - 3;
+//	heightmap = dest;
+//}
+//
+//float Terrain::average(UINT i, UINT j)
+//{
+//	float avg = 0.0f;
+//	float num = 0.0f;
+//
+//	for (UINT m = i - 1; m <= i + 1; m++)
+//	{
+//		for (UINT n = j - 1; n <= j + 1; n++)
+//		{
+//			if (inBounds(m, n))
+//			{
+//				avg += heightmap[m * info.NumCols + n];
+//				num += 1.0f;
 //			}
 //		}
-//
-//		FreeImage_Unload(heightMapImg);
 //	}
 //
-//	UINT totalNum = hmHeight * hmWidth;
-//	heightmap.resize(totalNum, 0);
+//	return avg / num;
+//}
 //
-//	for (UINT i = 0; i < totalNum; i++)
+//bool Terrain::inBounds(UINT i, UINT j)
+//{
+//	if (i >= 0 && i < info.NumRows && j >= 0 && j < info.NumCols)
 //	{
-//		heightmap[i] = (float)heightData[i] * info.HeightScale + info.HeightOffset;
+//		return true;
+//	} 
+//	else
+//	{
+//		return false;
 //	}
 //}
 
-	//size_t numVertices = hmHeight * hmWidth;
-	//std::vector<TerrainVertex> meshVertices(numVertices);
-	//float tC[2] = {0,1};
-	//float tCStepSize[2] = { 1.0f/hmWidth, 1.0f/hmHeight};
-
-	//float z = -32;
-	//float x = -32;
-	//int cnt = 0;
-	//int wCnt = 0;
-	//int hCnt = 0;	
-
-	////Skapar vertiser
-	//while (hCnt < hmHeight)
-	//{
-	//	while (wCnt < hmWidth)
-	//	{
-	//		meshVertices[cnt].texCoord = D3DXVECTOR2( tC[0], tC[1] );			
-	//		meshVertices[cnt++].pos = D3DXVECTOR3( x, heightData[cnt], z );
-	//		tC[0] += tCStepSize[0];
-	//		wCnt++;
-	//		x += 64.0f/(hmWidth-1);
-	//	}
-
-	//	x = -32;
-	//	z += 64.0f/(hmWidth-1);
-	//	tC[0] = 0;
-	//	tC[1] -= tCStepSize[1];
-	//	wCnt = 0;
-	//	hCnt++;
-	//}
-
-	////Beräkna normaler
-	//for ( size_t i = 0; i < numVertices - hmWidth; i++ )
-	//{
-	//	D3DXVECTOR3 N, v1, v2;	
-	//	v1 = meshVertices[i+hmWidth].pos - meshVertices[i].pos;
-	//	v2 = meshVertices[i+1].pos - meshVertices[i].pos;
-
-	//	D3DXVec3Cross( &N, &v1, &v2);
-
-	//	meshVertices[i].normal += N;
-	//	meshVertices[i+1].normal += N;
-	//	meshVertices[i+hmWidth].normal += N;
-
-	//	v1 = meshVertices[i+hmWidth].pos - meshVertices[i+1].pos;
-	//	v2 = meshVertices[i+hmWidth+1].pos - meshVertices[i+1].pos;
-
-	//	D3DXVec3Cross( &N, &v1, &v2);
-
-	//	meshVertices[i+1].normal += N;
-	//	meshVertices[i+hmWidth].normal += N;
-	//	meshVertices[i+hmWidth+1].normal += N;
-
-	//	if ( i % hmWidth == hmWidth - 2 ) i++;
-	//}
-
-	//for ( size_t i = 0; i < numVertices - hmWidth; i++ )
-	//{
-	//	D3DXVec3Normalize(&meshVertices[i].normal,&meshVertices[i].normal); 
-	//}
-
-	////beräknar indexes
-	//UINT numIndices = (hmHeight-1) * (hmWidth-1) * 6;
-	//std::vector<UINT> meshIndices(numIndices);
-	//cnt = 0;
-
-	//for ( size_t i = 0; i < numVertices - hmWidth; i++ )
-	//{
-	//	meshIndices[cnt++] = i;
-	//	meshIndices[cnt++] = i + hmWidth;
-	//	meshIndices[cnt++] = i + 1;
-	//	meshIndices[cnt++] = i + 1;
-	//	meshIndices[cnt++] = i + hmWidth;
-	//	meshIndices[cnt++] = i + hmWidth + 1;
-
-	//	if ( i % hmWidth == hmWidth - 2 ) i++;
-	//}
-
-	//int numElements = sizeof(InputLayout::posNormalTexVertexDesc)/sizeof(InputLayout::posNormalTexVertexDesc[0]);
-
-	////Skapar mesh
-	//D3DX10CreateMesh(localDevice, InputLayout::posNormalTexVertexDesc, numElements, "POSITION", numVertices, numIndices/3, D3DX10_MESH_32_BIT, &terrainMesh);
-
-
-	//Skickar in data i meshen och skickar meshen till grafikkortet
-
-	//D3D10_BUFFER_DESC vertexBufferDesc;
-	//vertexBufferDesc.Usage			= D3D10_USAGE_IMMUTABLE;
-	//vertexBufferDesc.ByteWidth		= sizeof(TerrainVertex) * numVertices;
-	//vertexBufferDesc.BindFlags		= D3D10_BIND_VERTEX_BUFFER;
-	//vertexBufferDesc.CPUAccessFlags = 0;
-	//vertexBufferDesc.MiscFlags		= 0;
-
-	//D3D10_SUBRESOURCE_DATA initData;
-	//initData.pSysMem = &meshVertices[0];
-	//HR(localDevice->CreateBuffer(&vertexBufferDesc, &initData, &vb));
-
-	//D3D10_BUFFER_DESC indexBufferDesc;
-	//indexBufferDesc.Usage			= D3D10_USAGE_IMMUTABLE;
-	//indexBufferDesc.ByteWidth		= sizeof(DWORD) * numFaces * 3;
-	//indexBufferDesc.BindFlags		= D3D10_BIND_INDEX_BUFFER;
-	//indexBufferDesc.CPUAccessFlags	= 0;
-	//indexBufferDesc.MiscFlags		= 0;
-
-	//initData.pSysMem = &meshIndices[0];
-	//HR(localDevice->CreateBuffer(&indexBufferDesc, &initData, &ib));
-
-	//terrainMesh->SetVertexData(0, meshVertices.data());
-	//terrainMesh->SetIndexData(meshIndices.data(), numIndices);
-	//terrainMesh->CommitToDevice();
-
-/*	delete meshVertices;
-	delete meshIndices;*/
-//}
-
-void Terrain::smooth()
-{
-	std::vector<float> dest(heightmap.size());
-
-	for (UINT i = 0; i < info.NumRows; i++)
-	{
-		for (UINT j = 0; j < info.NumCols; j++)
-		{
-			dest[i * info.NumCols + j] = average(i, j);
-		}
-	}
-
-	heightmap = dest;
-}
-
-float Terrain::average(UINT i, UINT j)
-{
-	float avg = 0.0f;
-	float num = 0.0f;
-
-	for (UINT m = i - 1; m <= i + 1; m++)
-	{
-		for (UINT n = j - 1; n <= j + 1; n++)
-		{
-			if (inBounds(m, n))
-			{
-				avg += heightmap[m * info.NumCols + n];
-				num += 1.0f;
-			}
-		}
-	}
-
-	return avg / num;
-}
-
-bool Terrain::inBounds(UINT i, UINT j)
-{
-	if (i >= 0 && i < info.NumRows && j >= 0 && j < info.NumCols)
-	{
-		return true;
-	} 
-	else
-	{
-		return false;
-	}
-}
 
 void Terrain::buildVB()
 {
@@ -465,4 +317,19 @@ void Terrain::buildIB()
 	D3D10_SUBRESOURCE_DATA initData;
 	initData.pSysMem = &indices[0];
 	HR(localDevice->CreateBuffer(&indexBufferDesc, &initData, &ib));
+}
+
+void Terrain::buildHightDataMatrix()
+{
+	for (int i = 0; i < 513; i++)
+	{
+		row r;
+
+		for (int j = 0; j < 513; j++)
+		{
+			r.push_back(heightmap[i * j]);
+		}
+
+		hightData.push_back(r);
+	}
 }

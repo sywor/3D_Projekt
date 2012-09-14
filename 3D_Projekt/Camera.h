@@ -9,8 +9,7 @@ public:
 	~Camera();
 
 	D3DXVECTOR3& Position();
-	D3DXMATRIX& GetPitch();
-	D3DXMATRIX& getAngle();
+	D3DXVECTOR3& Look();
 
 	D3DXMATRIX ViewMatrix()const;
 	D3DXMATRIX ProjMatrix()const;
@@ -30,8 +29,6 @@ private:
 	D3DXVECTOR3 right;
 	D3DXVECTOR3 up;
 	D3DXVECTOR3 look;
-
-	D3DXMATRIX r, p;
 
 	D3DXMATRIX viewMatrix;
 	D3DXMATRIX projmatrix;
