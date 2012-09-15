@@ -161,7 +161,7 @@ void D3DApp::updateScene(float _dt)
 
 	frameCount++;
 
-	if ((timer.getGameTime() - base) >= 1.0f)
+	if ((timer.getGameTime() - base) >= 0.1f)
 	{
 		float fps = (float)frameCount;
 		float milliSecPerFrame = 1000.0f / fps;
@@ -171,21 +171,16 @@ void D3DApp::updateScene(float _dt)
 
 		D3DXVECTOR3 pos = D3DXVECTOR3(GetCamera().Position().x, GetCamera().Position().y, GetCamera().Position().z);
 		D3DXVECTOR3 look = GetCamera().Look();
-		//D3DXMATRIX angle = GetCamera().getAngle();
-		//D3DXMATRIX pitch = GetCamera().GetPitch();
 
 		out << L"FPS: " << fps << L" Milliseconds per frame: " << milliSecPerFrame;
 		out << L"\n" << L"Camera pos XYZ: " << pos.x << L" : " << pos.y << L" : " << pos.z;
-		out << L"\n" << L"Camera look XYZ: " << look.x << " : "  << look.y << " : "  << look.z; 
-		//out	<< L"\n" << angle(0,0) << L" : " << angle(0,1) << L" : " << angle(0,2) << L" : " << angle(0,3);
-		//out << L"\n" << angle(1,0) << L" : " << angle(1,1) << L" : " << angle(1,2) << L" : " << angle(1,3);
-		//out << L"\n" << angle(2,0) << L" : " << angle(2,1) << L" : " << angle(2,2) << L" : " << angle(2,3);
-		//out << L"\n" << angle(3,0) << L" : " << angle(3,1) << L" : " << angle(3,2) << L" : " << angle(3,3);
-		//out << L"\n" << L"Camera pitch:";
-		//out << L"\n" << pitch(0,0) << L" : " << pitch(0,1) << L" : " << pitch(0,2) << L" : " << pitch(0,3);
-		//out << L"\n" << pitch(1,0) << L" : " << pitch(1,1) << L" : " << pitch(1,2) << L" : " << pitch(1,3);
-		//out << L"\n" << pitch(2,0) << L" : " << pitch(2,1) << L" : " << pitch(2,2) << L" : " << pitch(2,3);
-		//out << L"\n" << pitch(3,0) << L" : " << pitch(3,1) << L" : " << pitch(3,2) << L" : " << pitch(3,3);
+		out << L"\n" << L"Camera look XYZ: " << look.x << " : "  << look.y << " : "  << look.z;
+
+		if (GetCamera().RecordBool)
+		{
+			out << L"\n" << L"RECORDING, number of frames: " << GetCamera().recFrameCount;
+		}
+
 		frameStats = out.str();
 
 		frameCount = 0;

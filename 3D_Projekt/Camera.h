@@ -2,7 +2,6 @@
 
 #include "d3dUtil.h"
 #include <fstream>
-#include <iostream>
 
 struct camPath
 {
@@ -37,9 +36,11 @@ public:
 	void RotateY(float _angle);
 
 	void RebuildView();
-	void CheckRec();
+	void Record(float _dt);
+	void SaveRecording();
 
-	bool Record, Recorded;
+	bool RecordBool;
+	int recFrameCount;
 
 private:
 
@@ -54,6 +55,8 @@ private:
 	std::ofstream file;
 
 	std::vector<camPath> path;
+
+	float recFPS;
 };
 
 Camera& GetCamera();

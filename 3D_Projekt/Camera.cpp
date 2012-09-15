@@ -8,12 +8,6 @@ Camera& GetCamera()
 	return camera;
 }
 
-std::ofstream operator<<(std::ofstream& stream, camPath const& val)
-{
-	stream << val.pos << val.look;
-	return stream;
-}
-
 Camera::Camera()
 {
 	
@@ -24,9 +18,9 @@ Camera::Camera()
 
 	D3DXMatrixIdentity(&viewMatrix);
 	D3DXMatrixIdentity(&projmatrix);
-	Record = false;
-	Recorded = true;
-	
+
+	recFrameCount = 0;
+	RecordBool = false;
 }
 
 Camera::~Camera(){}
@@ -120,29 +114,30 @@ void Camera::RebuildView()
 	viewMatrix(3,3) = 1.0f;
 }
 
-void Camera::CheckRec()
+void Camera::Record(float _dt)
 {
-	if (Record)
+	recFPS += _dt; 
+
+	if (recFPS >= 0.01f)
 	{
 		camPath cp(pos, look);
 		path.push_back(cp);
-		Recorded = false;
+		recFPS = 0.0f;
+		recFrameCount++;
 		return;
 	} 
-	else if ( !Recorded)
+}
+
+void Camera::SaveRecording()
+{
+	file.open("path1.campath", std::ios::out | std::ios::binary);
+
+	for (size_t i = 0; i < path.size(); i++)
 	{
-		if (!file.is_open())
-		{
-			file.open("path1.campath");
-		} 
-
-		for (size_t i = 0; i < path.size(); i++)
-		{
-			file << path[i];
-		}
-
-		file.close();
-		Recorded = true;
-		return;
+		file.write(reinterpret_cast<char*>(&path[i]), sizeof(path[0]));
 	}
+
+	file.close();
+	recFrameCount = 0;
+	return;
 }

@@ -99,6 +99,8 @@ void D3DProj::updateScene(float _dt)
 {
 	D3DApp::updateScene(_dt);
 
+	
+
 	if (GetAsyncKeyState('A') & 0x8000)
 	{
 		GetCamera().Strafe(20.0f * _dt);
@@ -119,38 +121,26 @@ void D3DProj::updateScene(float _dt)
 		GetCamera().Walk(20.f * _dt);
 	}
 
-	if (GetAsyncKeyState('R') & 0x8000)
+	if (GetAsyncKeyState('R')) & 0x8000)
 	{
-		if (GetCamera().Record)
+		if (GetCamera().RecordBool)
 		{
-			GetCamera().Record = false;
+			GetCamera().RecordBool = false;
 		} 
 		else
 		{
-			GetCamera().Record = true;
+			GetCamera().RecordBool = true;
 		}
 	}
 
-	//if (GetAsyncKeyState(VK_LEFT) & 0x8000)
-	//{
-	//	GetCamera().RotateY(-0.0005f);
-	//}
-	//if (GetAsyncKeyState(VK_RIGHT) & 0x8000)
-	//{
-	//	GetCamera().RotateY(0.0005f);
-	//}
-	//if (GetAsyncKeyState(VK_UP) & 0x8000)
-	//{
-	//	GetCamera().Pitch(-0.0005f);
-	//}
-	//if (GetAsyncKeyState(VK_DOWN) & 0x8000)
-	//{
-	//	GetCamera().Pitch(0.0005f);
-	//}
+	if (GetAsyncKeyState('O') & 0x8000)
+	{
+		GetCamera().SaveRecording();
+	}
 
 	GetCamera().RebuildView();
 	partSys.update(_dt, timer.getGameTime());
-	GetCamera().CheckRec();
+	GetCamera().Record(_dt);
 }
 
 void D3DProj::drawScene()
