@@ -8,9 +8,10 @@ Camera& GetCamera()
 	return camera;
 }
 
-std::fstream operator<<(std::fstream& stream, camPath const& val)
+std::ofstream operator<<(std::ofstream& stream, camPath const& val)
 {
-	stream << pos << look;
+	stream << val.pos << val.look;
+	return stream;
 }
 
 Camera::Camera()
@@ -142,6 +143,6 @@ void Camera::CheckRec()
 
 		file.close();
 		Recorded = true;
-		return,
+		return;
 	}
 }

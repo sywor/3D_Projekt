@@ -20,7 +20,7 @@ private:
 	ParticleSystem partSys;
 	Sky sky;
 	Light parrallelLight;
-
+	Terrain terrain;
 	D3DXMATRIX Map;
 	ID3D10ShaderResourceView* enviromentMapRV;
 };

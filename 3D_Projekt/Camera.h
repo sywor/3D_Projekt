@@ -2,6 +2,7 @@
 
 #include "d3dUtil.h"
 #include <fstream>
+#include <iostream>
 
 struct camPath
 {

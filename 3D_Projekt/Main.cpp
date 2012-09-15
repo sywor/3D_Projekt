@@ -71,7 +71,7 @@ void D3DProj::initApp()
 	tii.NumCols      = 513;
 	tii.CellSpacing  = 1.0f;
 
-	GetTerrain().init(device, tii);
+	terrain.init(device, tii);
 
 	vector<wstring> flares;
 	flares.push_back(L"flare0.dds");
@@ -84,7 +84,7 @@ void D3DProj::initApp()
 	parrallelLight.diffuse  = D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f);
 	parrallelLight.specular = D3DXCOLOR(0.5f, 0.4843f, 0.3f, 1.0f);
 
-	GetTerrain().setDirectionToSun(-parrallelLight.dir);
+	terrain.setDirectionToSun(-parrallelLight.dir);
 }
 
 void D3DProj::onResize()
@@ -163,7 +163,7 @@ void D3DProj::drawScene()
 
 	device->OMSetBlendState(0, blendFactor, 0xffffffff);
 	device->IASetPrimitiveTopology(D3D10_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-	GetTerrain().draw(Map);
+	terrain.draw(Map);
 	sky.draw();
 
 	partSys.setEyePos(GetCamera().Position());
