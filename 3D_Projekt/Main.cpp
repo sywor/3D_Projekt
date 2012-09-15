@@ -92,7 +92,7 @@ void D3DProj::onResize()
 	D3DApp::onResize();
 
 	float aspect = (float)clientWidth / clientHeight;
-	GetCamera().SetLens(0.25f * D3DX_PI, aspect, 0.5f, 1000.0f);
+	GetCamera().SetLens(0.25f * (float)D3DX_PI, aspect, 0.5f, 1000.0f);
 }
 
 void D3DProj::updateScene(float _dt)
@@ -121,28 +121,36 @@ void D3DProj::updateScene(float _dt)
 
 	if (GetAsyncKeyState('R') & 0x8000)
 	{
-		partSys.reset();
+		if (GetCamera().Record)
+		{
+			GetCamera().Record = false;
+		} 
+		else
+		{
+			GetCamera().Record = true;
+		}
 	}
 
-	if (GetAsyncKeyState(VK_LEFT) & 0x8000)
-	{
-		GetCamera().RotateY(-0.0005f);
-	}
-	if (GetAsyncKeyState(VK_RIGHT) & 0x8000)
-	{
-		GetCamera().RotateY(0.0005f);
-	}
-	if (GetAsyncKeyState(VK_UP) & 0x8000)
-	{
-		GetCamera().Pitch(-0.0005f);
-	}
-	if (GetAsyncKeyState(VK_DOWN) & 0x8000)
-	{
-		GetCamera().Pitch(0.0005f);
-	}
+	//if (GetAsyncKeyState(VK_LEFT) & 0x8000)
+	//{
+	//	GetCamera().RotateY(-0.0005f);
+	//}
+	//if (GetAsyncKeyState(VK_RIGHT) & 0x8000)
+	//{
+	//	GetCamera().RotateY(0.0005f);
+	//}
+	//if (GetAsyncKeyState(VK_UP) & 0x8000)
+	//{
+	//	GetCamera().Pitch(-0.0005f);
+	//}
+	//if (GetAsyncKeyState(VK_DOWN) & 0x8000)
+	//{
+	//	GetCamera().Pitch(0.0005f);
+	//}
 
 	GetCamera().RebuildView();
 	partSys.update(_dt, timer.getGameTime());
+	GetCamera().CheckRec();
 }
 
 void D3DProj::drawScene()
@@ -190,21 +198,21 @@ LRESULT D3DProj::msgProc(UINT _msg, WPARAM _wParam, LPARAM _lParam)
 		ReleaseCapture();
 		break;
 
-	//case WM_MOUSEMOVE:
-	//	if (_wParam & MK_LBUTTON)
-	//	{
-	//		mousePos.x = (int)LOWORD(_lParam);
-	//		mousePos.y = (int)HIWORD(_lParam);
+	case WM_MOUSEMOVE:
+		if (_wParam & MK_LBUTTON)
+		{
+			mousePos.x = (int)LOWORD(_lParam);
+			mousePos.y = (int)HIWORD(_lParam);
 
-	//		dx = mousePos.x - oldMousePos.x;
-	//		dy = mousePos.y - oldMousePos.y;
+			dx = mousePos.x - oldMousePos.x;
+			dy = mousePos.y - oldMousePos.y;
 
-	//		GetCamera().Pitch(dy * 0.004f);
-	//		GetCamera().RotateY(dx * 0.004f);
+			GetCamera().Pitch(dy * 0.01f);
+			GetCamera().RotateY(dx * 0.01f);
 
-	//		oldMousePos = mousePos;
-	//	}
-	//	break;
+			oldMousePos = mousePos;
+		}
+		break;
 	}
 
 	return D3DApp::msgProc(_msg, _wParam, _lParam);

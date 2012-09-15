@@ -51,37 +51,6 @@ float Terrain::depth()const
 	return (info.NumRows - 1) * info.CellSpacing;
 }
 
-float Terrain::getHeight(float _x, float _z)const
-{
-	float c = (_x + 0.5f * width()) / info.CellSpacing;
-	float d = (_z - 0.5f * depth()) / info.CellSpacing;
-
-	int row = (int)floorf(d);
-	int col	= (int)floorf(c);
-
-	float A = heightmap[row + info.NumCols + col];
-	float tmp = hightData[col][row + info.NumCols];
-	float B = heightmap[row + info.NumCols + col + 1];
-	float C = heightmap[(row + 1) + info.NumCols + col];
-	float D = heightmap[(row + 1) + info.NumCols + col + 1];
-
-	float s = c - (float)col;
-	float t = d - (float)row;
-
-	if (s + t <= 1.0f) //if upper triangle
-	{
-		float uy = B - A;
-		float vy = C - A;
-		return A + s * uy + t * vy;
-	}
-	else //lower triangle
-	{
-		float uy = C - D;
-		float vy = B - D;
-		return D + (1.0f - s) * uy + (1.0f - t) * vy;
-	}
-}
-
 void Terrain::init(ID3D10Device* _device, const InitInfo& _initInfo)
 {
 	localDevice = _device;
@@ -102,7 +71,6 @@ void Terrain::init(ID3D10Device* _device, const InitInfo& _initInfo)
 	numFaces = (info.NumRows - 1) * (info.NumCols - 1) * 2;
 
 	loadHeightmap();
-	buildHightDataMatrix();
 	buildVB();
 	buildIB();
 
@@ -269,22 +237,4 @@ void Terrain::buildIB()
 	D3D10_SUBRESOURCE_DATA initData;
 	initData.pSysMem = &indices[0];
 	HR(localDevice->CreateBuffer(&indexBufferDesc, &initData, &ib));
-}
-
-void Terrain::buildHightDataMatrix()
-{
-	float w = width();
-	float d = depth();
-
-	for (int i = 1; i <= w; i++)
-	{
-		row r;
-
-		for (int j = 0; j < d; j++)
-		{
-			r.push_back(heightmap[i * j]);
-		}
-
-		hightData.push_back(r);
-	}
 }

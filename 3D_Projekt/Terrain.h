@@ -28,7 +28,6 @@ public:
 	
 	float width()const;
 	float depth()const;
-	float getHeight(float _x, float _z)const;
 
 	void init(ID3D10Device* _device, const InitInfo& _initInfo);
 
@@ -37,15 +36,12 @@ public:
 	void draw(const D3DXMATRIX& _worldMatrix);
 
 private:
-	typedef std::vector<float> row;
-
 	void loadHeightmap();
 	void smooth();
 	bool inBounds(UINT i, UINT j);
 	float average(UINT i, UINT j);
 	void buildVB();
 	void buildIB();
-	void buildHightDataMatrix();
 
 	InitInfo info;
 
@@ -53,7 +49,6 @@ private:
 	UINT numFaces;
 
 	std::vector<float> heightmap;
-	std::vector<row> hightData;
 
 	ID3D10Device* localDevice;
 	ID3D10Buffer* vb;

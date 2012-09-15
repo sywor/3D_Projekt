@@ -1,6 +1,19 @@
 #pragma once
 
 #include "d3dUtil.h"
+#include <fstream>
+
+struct camPath
+{
+	D3DXVECTOR3 pos;
+	D3DXVECTOR3 look;
+
+	camPath(D3DXVECTOR3 _p, D3DXVECTOR3 _l)
+	{
+		pos = _p;
+		look = _l;
+	}
+};
 
 class Camera
 {
@@ -23,8 +36,12 @@ public:
 	void RotateY(float _angle);
 
 	void RebuildView();
+	void CheckRec();
+
+	bool Record, Recorded;
 
 private:
+
 	D3DXVECTOR3 pos;
 	D3DXVECTOR3 right;
 	D3DXVECTOR3 up;
@@ -32,6 +49,10 @@ private:
 
 	D3DXMATRIX viewMatrix;
 	D3DXMATRIX projmatrix;
+
+	std::ofstream file;
+
+	std::vector<camPath> path;
 };
 
 Camera& GetCamera();

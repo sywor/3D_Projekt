@@ -1,10 +1,16 @@
 #include "Camera.h"
 #include "Terrain.h"
 
+
 Camera& GetCamera()
 {
 	static Camera camera;
 	return camera;
+}
+
+std::fstream operator<<(std::fstream& stream, camPath const& val)
+{
+	stream << pos << look;
 }
 
 Camera::Camera()
@@ -17,6 +23,8 @@ Camera::Camera()
 
 	D3DXMatrixIdentity(&viewMatrix);
 	D3DXMatrixIdentity(&projmatrix);
+	Record = false;
+	Recorded = true;
 	
 }
 
@@ -50,13 +58,11 @@ void Camera::SetLens(float _fovY, float _aspect, float _zn, float _zf)
 void Camera::Strafe(float _d)
 {
 	pos += _d * right;
-	pos.y = GetTerrain().getHeight(pos.x, pos.z);
 }
 
 void Camera::Walk(float _d)
 {
 	pos += _d * look;
-	pos.y = GetTerrain().getHeight(pos.x, pos.z);
 }
 
 void Camera::Pitch(float _angle)
@@ -111,4 +117,31 @@ void Camera::RebuildView()
 	viewMatrix(1,3) = 0.0f;
 	viewMatrix(2,3) = 0.0f;
 	viewMatrix(3,3) = 1.0f;
+}
+
+void Camera::CheckRec()
+{
+	if (Record)
+	{
+		camPath cp(pos, look);
+		path.push_back(cp);
+		Recorded = false;
+		return;
+	} 
+	else if ( !Recorded)
+	{
+		if (!file.is_open())
+		{
+			file.open("path1.campath");
+		} 
+
+		for (size_t i = 0; i < path.size(); i++)
+		{
+			file << path[i];
+		}
+
+		file.close();
+		Recorded = true;
+		return,
+	}
 }
