@@ -2,6 +2,7 @@
 
 #include "d3dUtil.h"
 #include <fstream>
+#include <iostream>
 
 struct camPath
 {
@@ -13,6 +14,8 @@ struct camPath
 		pos = _p;
 		look = _l;
 	}
+
+	camPath(){}
 };
 
 class Camera
@@ -38,6 +41,7 @@ public:
 	void RebuildView();
 	void Record(float _dt);
 	void SaveRecording();
+	void PlayRecording();
 
 	bool RecordBool;
 	int recFrameCount;
@@ -52,11 +56,13 @@ private:
 	D3DXMATRIX viewMatrix;
 	D3DXMATRIX projmatrix;
 
-	std::ofstream file;
+	std::fstream file;
 
 	std::vector<camPath> path;
 
 	float recFPS;
+	int ByteToInt(std::fstream& _file);
+	camPath ByteToCamPath(std::fstream& _file);
 };
 
 Camera& GetCamera();

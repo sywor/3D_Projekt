@@ -98,8 +98,9 @@ void D3DProj::onResize()
 void D3DProj::updateScene(float _dt)
 {
 	D3DApp::updateScene(_dt);
-
-	
+	GetCamera().RebuildView();
+	partSys.update(_dt, timer.getGameTime());
+	GetCamera().Record(_dt);
 
 	if (GetAsyncKeyState('A') & 0x8000)
 	{
@@ -120,8 +121,11 @@ void D3DProj::updateScene(float _dt)
 	{
 		GetCamera().Walk(20.f * _dt);
 	}
+}
 
-	if (GetAsyncKeyState('R')) & 0x8000)
+void D3DProj::executeKeys(WPARAM _wparam)
+{
+	if (_wparam == 82) //R
 	{
 		if (GetCamera().RecordBool)
 		{
@@ -131,16 +135,15 @@ void D3DProj::updateScene(float _dt)
 		{
 			GetCamera().RecordBool = true;
 		}
-	}
-
-	if (GetAsyncKeyState('O') & 0x8000)
+	} 
+	else if (_wparam == 79) //O
 	{
 		GetCamera().SaveRecording();
 	}
-
-	GetCamera().RebuildView();
-	partSys.update(_dt, timer.getGameTime());
-	GetCamera().Record(_dt);
+	else if (_wparam == 80)
+	{
+		GetCamera().PlayRecording();
+	}
 }
 
 void D3DProj::drawScene()
@@ -203,6 +206,11 @@ LRESULT D3DProj::msgProc(UINT _msg, WPARAM _wParam, LPARAM _lParam)
 			oldMousePos = mousePos;
 		}
 		break;
+
+	case WM_KEYDOWN:
+		{
+			executeKeys(_wParam);
+		}
 	}
 
 	return D3DApp::msgProc(_msg, _wParam, _lParam);

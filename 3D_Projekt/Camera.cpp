@@ -118,7 +118,7 @@ void Camera::Record(float _dt)
 {
 	recFPS += _dt; 
 
-	if (recFPS >= 0.01f)
+	if (recFPS >= 0.01f && RecordBool)
 	{
 		camPath cp(pos, look);
 		path.push_back(cp);
@@ -132,6 +132,10 @@ void Camera::SaveRecording()
 {
 	file.open("path1.campath", std::ios::out | std::ios::binary);
 
+	UINT s = path.size();
+
+	file.write(reinterpret_cast<char*>(&s), sizeof(UINT));
+
 	for (size_t i = 0; i < path.size(); i++)
 	{
 		file.write(reinterpret_cast<char*>(&path[i]), sizeof(path[0]));
@@ -140,4 +144,41 @@ void Camera::SaveRecording()
 	file.close();
 	recFrameCount = 0;
 	return;
+}
+
+void Camera::PlayRecording()
+{
+	char* buffer = new char[];
+	std::vector<camPath> path;
+
+	file.open("path1.campath", std::ios::in | std::ios::binary);
+
+	UINT size = ByteToInt(file);
+
+	for (int i = 0; i < size; i++)
+	{
+		path.push_back(ByteToCamPath(file));
+	}
+}
+
+int Camera::ByteToInt(std::fstream& _file)
+{
+	char b[4];
+	int temp = 0;
+
+	_file.read( b, sizeof(int) );
+	memcpy( &temp, b, sizeof(int) );
+
+	return temp;
+}
+
+camPath Camera::ByteToCamPath(std::fstream& _file)
+{
+	char b[sizeof(camPath)];
+	camPath cp;
+
+	_file.read(b, sizeof(camPath));
+	memcpy(&cp, b, sizeof(camPath));
+
+	return cp;
 }

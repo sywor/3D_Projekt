@@ -23,4 +23,6 @@ private:
 	Terrain terrain;
 	D3DXMATRIX Map;
 	ID3D10ShaderResourceView* enviromentMapRV;
+
+	void executeKeys(WPARAM _wparam);
 };
