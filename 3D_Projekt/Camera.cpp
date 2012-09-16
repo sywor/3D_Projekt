@@ -21,6 +21,7 @@ Camera::Camera()
 
 	recFrameCount = 0;
 	RecordBool = false;
+	pathIndex = 0;
 }
 
 Camera::~Camera(){}
@@ -146,18 +147,32 @@ void Camera::SaveRecording()
 	return;
 }
 
-void Camera::PlayRecording()
+void Camera::LoadRecording()
 {
 	char* buffer = new char[];
-	std::vector<camPath> path;
 
 	file.open("path1.campath", std::ios::in | std::ios::binary);
 
 	UINT size = ByteToInt(file);
 
+	path.clear();
+
 	for (int i = 0; i < size; i++)
 	{
 		path.push_back(ByteToCamPath(file));
+	}
+}
+
+void Camera::PlayRecording(float _dt)
+{
+	playFPS += _dt;
+
+	if (playFPS >= 0.01f && PlayBool && pathIndex < path.size())
+	{
+		pos = path[pathIndex].pos;
+		look = path[pathIndex].look;
+		pathIndex++;
+		playFPS = 0.0f;
 	}
 }
 

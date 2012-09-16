@@ -98,28 +98,32 @@ void D3DProj::onResize()
 void D3DProj::updateScene(float _dt)
 {
 	D3DApp::updateScene(_dt);
-	GetCamera().RebuildView();
 	partSys.update(_dt, timer.getGameTime());
 	GetCamera().Record(_dt);
+	GetCamera().PlayRecording(_dt);
+	GetCamera().RebuildView();
 
-	if (GetAsyncKeyState('A') & 0x8000)
-	{
-		GetCamera().Strafe(20.0f * _dt);
-	}
+	if (!GetCamera().PlayBool)
+	{	
+		if (GetAsyncKeyState('A') & 0x8000)
+		{
+			GetCamera().Strafe(20.0f * _dt);
+		}
 
-	if (GetAsyncKeyState('D') & 0x8000)
-	{
-		GetCamera().Strafe(-20.0f * _dt);
-	}
+		if (GetAsyncKeyState('D') & 0x8000)
+		{
+			GetCamera().Strafe(-20.0f * _dt);
+		}
 
-	if (GetAsyncKeyState('W') & 0x8000)
-	{
-		GetCamera().Walk(-20.0f * _dt);
-	}
+		if (GetAsyncKeyState('W') & 0x8000)
+		{
+			GetCamera().Walk(-20.0f * _dt);
+		}
 
-	if (GetAsyncKeyState('S') & 0x8000)
-	{
-		GetCamera().Walk(20.f * _dt);
+		if (GetAsyncKeyState('S') & 0x8000)
+		{
+			GetCamera().Walk(20.f * _dt);
+		}
 	}
 }
 
@@ -140,9 +144,20 @@ void D3DProj::executeKeys(WPARAM _wparam)
 	{
 		GetCamera().SaveRecording();
 	}
-	else if (_wparam == 80)
+	else if (_wparam == 80) //P
 	{
-		GetCamera().PlayRecording();
+		if (GetCamera().PlayBool)
+		{
+			GetCamera().PlayBool = false;
+		} 
+		else
+		{
+			GetCamera().PlayBool = true;
+		}
+	}
+	else if (_wparam == 76) //L
+	{
+		GetCamera().LoadRecording();
 	}
 }
 
@@ -192,7 +207,7 @@ LRESULT D3DProj::msgProc(UINT _msg, WPARAM _wParam, LPARAM _lParam)
 		break;
 
 	case WM_MOUSEMOVE:
-		if (_wParam & MK_LBUTTON)
+		if (_wParam & MK_LBUTTON && !GetCamera().PlayBool)
 		{
 			mousePos.x = (int)LOWORD(_lParam);
 			mousePos.y = (int)HIWORD(_lParam);

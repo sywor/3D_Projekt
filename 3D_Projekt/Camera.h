@@ -41,10 +41,11 @@ public:
 	void RebuildView();
 	void Record(float _dt);
 	void SaveRecording();
-	void PlayRecording();
+	void LoadRecording();
+	void PlayRecording(float _dt);
 
-	bool RecordBool;
-	int recFrameCount;
+	bool RecordBool, PlayBool;
+	int recFrameCount, pathIndex;
 
 private:
 
@@ -60,7 +61,7 @@ private:
 
 	std::vector<camPath> path;
 
-	float recFPS;
+	float recFPS, playFPS;
 	int ByteToInt(std::fstream& _file);
 	camPath ByteToCamPath(std::fstream& _file);
 };
